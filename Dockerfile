@@ -49,7 +49,8 @@ RUN cd /opt/linuxbrew/Library/Taps/homebrew/homebrew-science && \
     brew install bwa
 
 RUN cd /opt/linuxbrew && \
-    rm -rf .git Library
+    rm -rf .git Library && \
+    yum clean all
 
 ENV JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.79.x86_64/jre/
 ENV PATH /opt/ngs-tools/bin:$PATH 
