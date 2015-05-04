@@ -50,7 +50,7 @@ RUN cd /opt/linuxbrew/Library/Taps/homebrew/homebrew-science && \
 
 RUN cd /opt/linuxbrew && \
     rm -rf .git Library && \
-    yum clean all
+    yum -y clean all
 
 ENV JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.79.x86_64/jre/
 ENV PATH /opt/ngs-tools/bin:$PATH 
