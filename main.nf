@@ -30,8 +30,8 @@ raw = "${params.experiment}/raw"
 intermediate = "${params.experiment}/intermediate"
 fine = "${params.experiment}/final"
 
-raw1 = "${raw}/**_R1*{fastq,fq,fastq.gz,fq.gz}"
-raw2 = "${raw}/**_R2*{fastq,fq,fastq.gz,fq.gz}"
+raw1 = "${raw}/**_R1.fq.gz"
+raw2 = "${raw}/**_R2.fq.gz"
 reads1 = Channel.fromPath(raw1).ifEmpty { error "cannot find any reads matching ${raw1}" }.map { path -> tuple(sample(path), path) }
 reads2 = Channel.fromPath(raw2).ifEmpty { error "cannot find any reads matching ${raw2}" }.map { path -> tuple(sample(path), path) }
 
@@ -40,12 +40,12 @@ readPairs = reads1.phase(reads2).map{ read1, read2 -> [ read1[0], read1[1], read
 
 process fastqToSsake {
   input:
-    set s, file(r1), file(r2) from readPairs
+    set s, file('R1.fq.gz'), file('R2.fq.gz') from readPairs
   output:
     set s, file {"${s}.ssake.fa.gz"} into ssakeFasta
 
   """
-  ngs-fastq-to-ssake -1 ${r1} -2 ${r2} -o ${s}.ssake.fa.gz --insert-size 500
+  ngs-fastq-to-ssake -1 R1.fq.gz -2 R2.fq.gz -o ${s}.ssake.fa.gz --insert-size 500
   """
 }
 
@@ -100,12 +100,12 @@ contigsVcf.subscribe() {
 
 process interleave {
   input:
-    set s, file(r1), file(r2) from alignmentReadPairs
+    set s, file('R1.fq.gz'), file('R2.fq.gz') from alignmentReadPairs
   output:
     set s, file {"${s}.paired.fq.gz"} into interleavedReads
 
   """
-  ngs-interleave-fastq -1 ${r1} -2 ${r2} -p ${s}.paired.fq.gz -u ${s}.unpaired.fq.gz
+  ngs-interleave-fastq -1 R1.fq.gz -2 R2.fq.gz -p ${s}.paired.fq.gz -u ${s}.unpaired.fq.gz
   """
 }
 
