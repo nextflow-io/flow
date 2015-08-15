@@ -1,56 +1,42 @@
-flow
-====
+Nmdp-Flow
+==========
 
 Consensus assembly, variant calling, and allele interpretation workflow.
 
+This version of the pipeline was used to assess the impact of Docker containers on the 
+performance of genomic tools. See https://peerj.com/preprints/1171/ and subsequent manuscript 
+peer review https://peerj.com/manuscripts/5515/
 
-###Hacking flow
+To replicate the pipeline execution see the following section. 
 
-Install [Nextflow](http://www.nextflow.io/)
-```bash
-$ curl -fsSL get.nextflow.io | bash 
+Quick start
+-----------
 
-      N E X T F L O W
-      Version 0.12.5 build 2800
-      last modified 18-03-2015 09:11 UTC (04:11 CDT)
-      http://nextflow.io
+Make sure you have the required dependencies listed in the last section. 
 
-Nextflow installation completed.
-```
+1. Pull the required Docker image: 
 
-Run assembly
-```bash
-$ ./nextflow main.nf
-N E X T F L O W  ~  version 0.12.5
-[warm up] executor > local
-[94/cfa72d] Submitted process > fastqToSsake (1)
-[bb/73c436] Submitted process > interleave (1)
-[48/019fbb] Submitted process > alignReads (1)
-[2e/491ce1] Submitted process > reformat (1)
-[f6/3c6d74] Submitted process > ssake (1)
-reads vcf [example, work/48/019fbbf84290466e2223373c9a3af3/example.reads.bwa.sorted.vcf.gz]
-aligned reads [example, work/48/019fbbf84290466e2223373c9a3af3/example.reads.bwa.sorted.bam]
-[2e/a62ff3] Submitted process > alignContigs (1)
-aligned contigs [example, work/2e/a62ff3adc7c7d73845fa8c58c47f5f/example.contigs.bwa.sorted.bam]
-contigs vcf [example, work/2e/a62ff3adc7c7d73845fa8c58c47f5f/example.contigs.bwa.sorted.vcf.gz]
-```
+    `$ docker pull nextflow/nmdp-flow:peerj5515`
 
-Use [SLURM](https://computing.llnl.gov/linux/slurm/) executor
-```bash
-$ echo "process.executor = 'slurm'" > nextflow.config
-$ ./nextflow main.nf
-N E X T F L O W  ~  version 0.12.5
-[warm up] executor > slurm
-[ab/8b26c9] Submitted process > interleave (1)
-[51/19b1c5] Submitted process > fastqToSsake (1)
-[38/f27ca8] Submitted process > alignReads (1)
-aligned reads [example, work/38/f27ca8187337e548ec11c9d5003e99/example.reads.bwa.sorted.bam]
-reads vcf [example, work/38/f27ca8187337e548ec11c9d5003e99/example.reads.bwa.sorted.vcf.gz]
-[d9/0ef973] Submitted process > reformat (1)
-[61/4fae5f] Submitted process > ssake (1)
-[81/e19095] Submitted process > alignContigs (1)
-aligned contigs [example, work/81/e19095c5509793edf9d2047ffc4ecf/example.contigs.bwa.sorted.bam]
-contigs vcf [example, work/81/e19095c5509793edf9d2047ffc4ecf/example.contigs.bwa.sorted.vcf.gz]
-```
+2. Download the benchmark dataset: 
 
-Note that when using the SLURM executor, the Nextflow working directory must be mounted on a volume shared to all SLURM nodes.
+    `$ aws s3 sync s3://cbcrg-eu/nmdpflow-data data`
+
+3. Launch the pipeline execution with the benchmark dataset
+	
+    `$ nextflow run nmdp-flow -revision peerj5515 -with-docker -bg > log.txt`
+
+The pipeline will run as a background process and the output redirected to the `log.txt` file. 
+
+It will also create a file named `trace.csv` containing the run time information for each executed task.
+
+Note: the execution with Docker will produce some intermediate results with *root* ownership. You will need sudo/root permissions to delete them.
+
+
+Dependencies
+------------
+ * Java VM 7 or later
+ * [Docker 1.0 or later](http://www.docker.io)
+ * [Nextflow 0.15.0 or later](http://nextflow.io)
+ 
+For the execution of the pipeline without using the Docker engine follow the installation steps in the included Dockerfile.
